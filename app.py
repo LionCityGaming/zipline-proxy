@@ -87,11 +87,23 @@ def get_zipline_stats():
         # Expected format: {"filesUploaded": 219, "storageUsed": 210716487, ...}
         files = data.get('filesUploaded', 0)
         storage_bytes = data.get('storageUsed', 0)
+        storage_mb = storage_bytes / (1024 ** 2)  # Convert bytes to MB
         storage_gb = storage_bytes / (1024 ** 3)  # Convert bytes to GB
+
+        # Smart unit selection: use MB if less than 1GB, otherwise GB
+        if storage_gb >= 1.0:
+            storage_value = round(storage_gb, 2)
+            storage_unit = 'GB'
+        else:
+            storage_value = round(storage_mb, 2)
+            storage_unit = 'MB'
 
         result = {
             'files': files,
-            'storage_gb': round(storage_gb, 2)
+            'storage_gb': round(storage_gb, 2),
+            'storage_mb': round(storage_mb, 2),
+            'storage': storage_value,
+            'storage_unit': storage_unit
         }
 
         # Update cache

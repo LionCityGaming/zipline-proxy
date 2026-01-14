@@ -36,10 +36,19 @@ Returns Zipline statistics in JSON format:
 
 ```json
 {
-    "files": 1234,
-    "storage_gb": 45.67
+    "files": 219,
+    "storage_gb": 0.2,
+    "storage_mb": 200.98,
+    "storage": 200.98,
+    "storage_unit": "MB"
 }
 ```
+
+The API intelligently returns:
+- `storage` and `storage_unit`: Smart unit selection (MB when < 1GB, GB when >= 1GB)
+- `storage_mb`: Always in megabytes
+- `storage_gb`: Always in gigabytes
+- `files`: Total number of files uploaded
 
 ## Docker Usage
 
@@ -75,6 +84,9 @@ services:
 
 Add this to your Homepage `services.yaml`:
 
+### Option 1: Smart Unit Display (Recommended)
+Shows MB when less than 1GB, automatically switches to GB when over 1GB:
+
 ```yaml
 - Zipline:
     icon: zipline.png
@@ -87,9 +99,51 @@ Add this to your Homepage `services.yaml`:
         mappings:
             - field: files
               label: Files
-            - field: storage_gb
-              label: Storage (GB)
               format: number
+            - field: storage
+              label: Storage
+              format: number
+              suffix: " {{storage_unit}}"
+```
+
+### Option 2: Always Show MB
+```yaml
+- Zipline:
+    icon: zipline.png
+    href: http://your-server:3000
+    description: File Upload & Sharing
+    widget:
+        type: customapi
+        url: http://your-server:8427/stats
+        refreshInterval: 300000  # 5 minutes
+        mappings:
+            - field: files
+              label: Files
+              format: number
+            - field: storage_mb
+              label: Storage
+              format: number
+              suffix: " MB"
+```
+
+### Option 3: Always Show GB
+```yaml
+- Zipline:
+    icon: zipline.png
+    href: http://your-server:3000
+    description: File Upload & Sharing
+    widget:
+        type: customapi
+        url: http://your-server:8427/stats
+        refreshInterval: 300000  # 5 minutes
+        mappings:
+            - field: files
+              label: Files
+              format: number
+            - field: storage_gb
+              label: Storage
+              format: number
+              suffix: " GB"
 ```
 
 ## Development
