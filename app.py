@@ -65,7 +65,7 @@ def get_zipline_stats():
 
     try:
         response = requests.get(
-            f'{ZIPLINE_URL}/api/stats',
+            f'{ZIPLINE_URL}/api/user/stats',
             cookies=cookies,
             timeout=10
         )
@@ -75,7 +75,7 @@ def get_zipline_stats():
             logger.info("Session expired, logging in again")
             cookies = login_to_zipline()
             response = requests.get(
-                f'{ZIPLINE_URL}/api/stats',
+                f'{ZIPLINE_URL}/api/user/stats',
                 cookies=cookies,
                 timeout=10
             )
@@ -84,15 +84,10 @@ def get_zipline_stats():
         data = response.json()
 
         # Parse Zipline stats response
-        # Expected format: [{"data": {"files": 123, "storage": 456789}}]
-        files = 0
-        storage_gb = 0.0
-
-        if data and isinstance(data, list) and len(data) > 0:
-            stats_data = data[0].get('data', {})
-            files = stats_data.get('files', 0)
-            storage_bytes = stats_data.get('storage', 0)
-            storage_gb = storage_bytes / (1024 ** 3)  # Convert bytes to GB
+        # Expected format: {"filesUploaded": 219, "storageUsed": 210716487, ...}
+        files = data.get('filesUploaded', 0)
+        storage_bytes = data.get('storageUsed', 0)
+        storage_gb = storage_bytes / (1024 ** 3)  # Convert bytes to GB
 
         result = {
             'files': files,
